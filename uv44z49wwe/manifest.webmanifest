@@ -1,0 +1,42 @@
+{
+  "name": "Conquista Estelar",
+  "short_name": "Conquista Estelar",
+  "description": "Estrategia en tiempo real: funda una colonia en un mundo fronterizo, levanta un ejército de hasta mil tropas y toma el planeta. Cuatro facciones, campaña, supervivencia y batallas campales.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "any",
+  "lang": "es",
+  "dir": "ltr",
+  "background_color": "#0d120f",
+  "theme_color": "#171d19",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -281,7 +281,7 @@ const S={
  shield:{b:1,cap:1,name:'Generador de escudo',hp:500,r:22,cost:{w:150,c:150},bt:24,sight:220,req:'lab',desc:'Tropas y edificios propios en su radio reciben un 40 % menos de daño de disparos',g:{w:12,d:14,h:16,roof:'tower'}},
  wall:{b:1,name:'Barricada',hp:900,r:13,armor:6,cost:{w:25,m:10},bt:6,sight:60,desc:'Bloquea el paso de las tropas de tierra. Arrastra para trazar una fila; con Mayús sigues colocando.',g:{w:11,d:10,h:9,roof:'flat'}},
  tower:{b:1,name:'Torreta',hp:700,r:18,cost:{w:100,m:90},bt:20,dmg:16,range:220,cd:.7,sight:280,proj:1,req:'barracks',desc:'Defensa automática; no se puede capturar',g:{w:11,d:12,h:32,roof:'tower'}},
- worker:{name:'Colono',hp:40,r:5,ht:25,speed:74,cost:{f:40},tt:5,pop:1,from:'base',sight:200,desc:'Recolecta, construye y repara'},
+ worker:{name:'Colono',hp:40,r:5,ht:25,speed:74,cost:{f:40},tt:5,pop:1,from:'base',sight:200,desc:'Recolecta, construye, repara y se defiende cuerpo a cuerpo con sus herramientas'},
  pike:{inf:1,name:'Lancero',hp:90,r:5,ht:27,speed:78,cost:{f:40,m:15},tt:4,pop:1,dmg:11,range:12,cd:.8,armor:1,from:'barracks',sight:220,desc:'Cuerpo a cuerpo con guja de plasma. Bueno contra fusileros, tiradores y deslizadores; flojo contra granaderos y lanzallamas'},
  musk:{inf:1,name:'Fusilero',hp:70,r:5,ht:26,speed:72,cost:{f:40,m:25},tt:5,pop:1,dmg:21,range:150,cd:1.9,from:'barracks',sight:230,proj:1,desc:'Fusil de pulsos, más daño de cerca. Bueno contra cañoneras, colosos y berserkers; flojo contra granaderos, cañones y lanceros que lleguen al cuerpo a cuerpo'},
  gren:{inf:1,name:'Granadero',hp:95,r:5,ht:28,speed:70,cost:{f:70,m:45,c:10},tt:8,pop:1,dmg:30,range:95,cd:3.2,splash:30,bb:2.5,armor:1,from:'barracks',sight:230,proj:2,desc:'Granadas de plasma: daño en área y mucho contra edificios. Bueno contra infantería apiñada; flojo contra colosos, cañones y cañoneras'},
@@ -655,6 +655,7 @@ function spawn(b,kind){const r=b.rally||{x:b.x+(b.team?-1:1)*(b.r+70),y:b.y+(b.t
  if(kind==='worker'){if(b.rally&&b.rally.node&&b.rally.node.amt>0){u.job=b.rally.node.type;u.order={type:'gather',node:b.rally.node}}
   else{u.job=needJob(b.team);resume(u)}}
  else u.order={type:'amove',x:clamp(r.x+(Math.random()-.5)*70,10,W-10),y:clamp(r.y+(Math.random()-.5)*70,10,H-10)}}
+function selfDef(e){if(e.dfT>time||e.hp<=0)return;let f=null,fd=1e9;near(e.x,e.y,40,o=>{if(o.team===e.team||o.b||o.hp<=0||S[o.kind].fly)return;const d=dist(e,o)-e.r-o.r;if(d<9&&d<fd){fd=d;f=o}});if(!f)return;e.a=Math.atan2(f.y-e.y,f.x-e.x);e.walk+=1.5;e.dfT=time+1.2;hurt(f,5,e)}
 function worker(e,dt){const o=e.order;if(!o)return;
  if(o.type==='move'||o.type==='amove'){if(follow(e,o,dt))e.order=o.q&&o.q.length?nextQ(o):null;return}
  if(o.type==='build'){const t=o.target;if(t.hp<=0||t.team!==e.team||(!t.pending&&t.hp>=t.max)){let nb=null,nd=640;for(const x of ents)if(x.b&&x.pending&&x.team===e.team&&x.hp>0){const d=dist(e,x);if(d<nd){nd=d;nb=x}}if(nb){e.order={type:'build',target:nb};return}resume(e);return}
@@ -740,7 +741,7 @@ function think(dt){
    if(e.q.length){const q=e.q[0];q.t-=dt;if(q.t<=0){e.q.shift();if(q.res){up[e.team][q.res]++;pend[e.team][q.res]=false;if(!e.team){say(RES[q.res].name+' '+ROM[up[0][q.res]]+' completado.');chime([523,659,784],.1,.16)}}else spawn(e,q.kind)}}
    else if(e.rep&&can(e.team,costOf(e.team,e.rep))&&popUsed(e.team)+S[e.rep].pop<=popCap(e.team)){pay(e.team,costOf(e.team,e.rep));e.q.push({kind:e.rep,t:S[e.rep].tt,tt:S[e.rep].tt})}
    if(s.dmg)combat(e,s,dt)}
-  else if(e.kind==='worker')worker(e,dt);else if(s.heal)medic(e,s,dt);
+  else if(e.kind==='worker'){selfDef(e);worker(e,dt)}else if(s.heal)medic(e,s,dt);
   else combat(e,s,dt)}
 }
 function stepProjs(dt){
